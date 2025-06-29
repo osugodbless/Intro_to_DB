@@ -1,2 +1,2 @@
-USE alx_boo_store;
+USE alx_book_store;
 SHOW TABLES;
