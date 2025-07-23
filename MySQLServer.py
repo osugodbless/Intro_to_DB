@@ -1,40 +1,46 @@
 import mysql.connector
 from mysql.connector import errorcode
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables from a .env file
 load_dotenv()
 
 DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
+connection = None
+cursor = None
 
+# Connect to MySQL server
 try:
-    # Connect to MySQL server
     connection = mysql.connector.connect(
         host=DB_HOST,
         user=DB_USER,
         password=DB_PASSWORD
     )
-
+    # Create cursor object
     cursor = connection.cursor()
-
-    # Try creating the database
-    try:
-        cursor.execute("CREATE DATABASE IF NOT EXISTS alx_book_store")
-        print("Database 'alx_book_store' created successfully!")
-    except mysql.connector.Error as err:
-        print(f"Error creating database: {err}")
+    print("Connection established")
 
 except mysql.connector.Error as err:
-    print("Error connecting to MySQL server:")
-    print(err)
+    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+        print("Access denied: incorrect username or password")
+    else:
+        print(err)
 
+# Create a database called 'alx_book_store'
+try:
+    cursor.execute("CREATE DATABASE IF NOT EXISTS john_book_store")
+    print("Database created successfully")
+
+except mysql.connector.Error as err:
+    print(f"Failed to create database: {err}")
+
+# Close database connection
 finally:
-    # Clean up and close connection
-    if 'cursor' in locals():
+    if cursor is not None:
         cursor.close()
-    if 'connection' in locals() and connection.is_connected():
+    if connection is not None and connection.is_connected():
         connection.close()
-
+        print("Database connection is now closed")
